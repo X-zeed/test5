@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE, edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        th, td, tbody, caption {
+            border: 1px solid #58d018;
+            border-collapse: collapse;
+            padding: 0.5rem;
+            font-family: Arial, sans-serif; /* Change the font to your desired font */
+        }
+
+        .table-container {
+            float: left;
+            width: 50%; /* Adjust the width as needed */
+        }
+
+        .chart-container {
+            float: left;
+            width: 50%; /* Adjust the width as needed */
+        }
+
+        .clear {
+            clear: both;
+        }
+    </style>
+    <title>spectrophotometer</title>
+</head>
+
+<body>
+    <h1>Data Table</h1>
+
+    <div class="table-container">
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Red</th>
+                <th>Green</th>
+                <th>Blue</th>
+            </tr>
+            <tbody id="dataBody">
+            </tbody>
+        </table>
+    </div>
+    <div class="chart-container">
+        <canvas id="myChart" width="800" height="400"></canvas> <!-- Adjust width and height as needed -->
+    </div>
+    <div class="clear"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        async function loadData() {
+            const url = 'https://api.sheety.co/2a2edb32246966ec3fcd0f1adf2db8d0/spectrophotometer/data1';
+            const response = await fetch(url);
+            const data = await response.json();
+            let dataBody = document.getElementById("dataBody");
+            const timeData = [];
+            const redData = [];
+            const greenData = [];
+            const blueData = [];
+
+            data.data1.forEach((element, index) => {
+                const { id, date, time, red, green, blue } = element;
+                let newRow =
+                    `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${date}</td>
+                    <td>${time}</td>
+                    <td>${red}</td>
+                    <td>${green}</td>
+                    <td>${blue}</td>
+                </tr>
+                `;
+                dataBody.innerHTML += newRow;
+                timeData.push(time);
+                redData.push(red);
+                greenData.push(green);
+                blueData.push(blue);
+            });
+
+            const ctx = document.getElementById('myChart').getContext('2d');
+            const myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: timeData, // Use timeData for x-axis labels
+                    datasets: [
+                        {
+                            label: 'Red',
+                            data: redData,
+                            borderColor: 'rgba(255, 0, 0, 1)',
+                            fill: false,
+                        },
+                        {
+                            label: 'Green',
+                            data: greenData,
+                            borderColor: 'rgba(0, 255, 0, 1)',
+                            fill: false,
+                        },
+                        {
+                            label: 'Blue',
+                            data: blueData,
+                            borderColor: 'rgba(0, 0, 255, 1)',
+                            fill: false,
+                        },
+                    ],
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Time'
+                            }
+                        },
+                    },
+                },
+            });
+        }
+
+        loadData();
+    </script>
+</body>
+
+</html>
